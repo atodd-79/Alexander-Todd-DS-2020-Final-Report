@@ -97,7 +97,7 @@ pop_raw <- read_csv("data/County_Population_in_Iowa_by_Year_20251123.csv")
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-# view(pop)
+# view(pop_raw)
 
 income_raw <- read_csv("data/Annual_Personal_Income_for_State_of_Iowa_by_County_20251123.csv")
 ```
@@ -112,7 +112,7 @@ income_raw <- read_csv("data/Annual_Personal_Income_for_State_of_Iowa_by_County_
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-# view(income)
+# view(income_raw)
 
 rev_raw <- read_csv("data/County_Actual_Revenues_By_Type_By_Fiscal_Year_20251123.csv")
 ```
@@ -129,7 +129,7 @@ rev_raw <- read_csv("data/County_Actual_Revenues_By_Type_By_Fiscal_Year_20251123
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-# view(rev)
+# view(rev_raw)
 
 budget_raw <- read_csv("data/County_Budgeted_Expenditures_By_Service_Area_By_Fiscal_Year_20251123.csv")
 ```
@@ -145,7 +145,7 @@ budget_raw <- read_csv("data/County_Budgeted_Expenditures_By_Service_Area_By_Fis
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-# view(budget)
+# view(budget_raw)
 
 spend_raw <- read_csv("data/County_Actual_Expenditures_by_Service_Area_by_Fiscal_Year_20251123.csv")
 ```
@@ -162,14 +162,14 @@ spend_raw <- read_csv("data/County_Actual_Expenditures_by_Service_Area_by_Fiscal
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-# view(spend)
+# view(spend_raw)
 ```
 
 The next step is to begin cleaning each data set on various thing: 1.
 Selecting the correct attributes as the proper variable type 2. Making a
 cohesive date and county name attribute to make joining tables easier 3.
 Filter out data with a year not in a shared range. In this case, there
-is sufficient data in each data set to use the years 2010 to 2024. 4.
+is sufficient data in each data set to use the years 2010 to 2022. 4.
 Editing any variables to make them look nice and creating any calculated
 fields that might be important later.
 
@@ -182,20 +182,23 @@ extracting the year from the date, filtering by years between 2010 and
 2024 and only keeping County, Year, and Population columns.
 
 ``` r
+pop_raw$County <- replace(pop_raw$County, pop_raw$County == "O'Brien County", "Obrien County")
+
 pop <- pop_raw |>
   mutate(
     County = toupper(substring(County, 1, nchar(County) - 7)),
     Year = year(mdy(Year))
   ) |>
-  filter(Year >= 2010, Year <= 2024) |>
-  select(County, Year, Population) |>
-  str()
+  filter(Year >= 2010, Year <= 2022) |>
+  select(County, Year, Population)
+
+str(pop)
 ```
 
-    ## tibble [1,485 × 3] (S3: tbl_df/tbl/data.frame)
-    ##  $ County    : chr [1:1485] "STORY" "CLAYTON" "JOHNSON" "JEFFERSON" ...
-    ##  $ Year      : num [1:1485] 2011 2012 2021 2018 2016 ...
-    ##  $ Population: num [1:1485] 91136 17946 155047 18256 222188 ...
+    ## tibble [1,287 × 3] (S3: tbl_df/tbl/data.frame)
+    ##  $ County    : chr [1:1287] "STORY" "CLAYTON" "JOHNSON" "JEFFERSON" ...
+    ##  $ Year      : num [1:1287] 2011 2012 2021 2018 2016 ...
+    ##  $ Population: num [1:1287] 91136 17946 155047 18256 222188 ...
 
 *Income Data*
 
@@ -210,12 +213,14 @@ as the personal income was in thousands of dollars, it was multiplied by
 1000 to make it consistent and easily used.
 
 ``` r
+income_raw$Name <- replace(income_raw$Name, income_raw$Name == "O'Brien", "Obrien")
+
 income_1 <- income_raw |>
   mutate(
     County = toupper(Name),
     Year = year(mdy(Date))
   ) |>
-  filter(Year >= 2010, Year <= 2024) |>
+  filter(Year >= 2010, Year <= 2022) |>
   select(County, Year, Variable, Value)
 
 income <- income_1 |>
@@ -229,8 +234,9 @@ income <- income_1 |>
     Personal_Income = parse_number(Personal_Income),
     Personal_Income_Per_Capita = parse_number(Personal_Income_Per_Capita),
     Personal_Income = Personal_Income * 1000
-  ) |>
-  str()
+  )
+
+str(income)
 ```
 
     ## tibble [1,287 × 4] (S3: tbl_df/tbl/data.frame)
@@ -275,19 +281,151 @@ rev <- rev_raw |>
     Revenue_Percent_Activities = round((`LICENSES & PERMITS` + `CHARGES FOR SERVICE` + `USE OF MONEY & PROPERTY`) / Total_Revenue, 4),
     Revenue_Percent_Other = round(1 - Revenue_Percent_Property_Tax - Revenue_Percent_Grant - Revenue_Percent_Activities, 4)
   ) |>
-  filter(Year >= 2010, Year <= 2024) |>
-  select(County, Year, Total_Revenue, Revenue_Percent_Property_Tax, Revenue_Percent_Grant, Revenue_Percent_Activities, Revenue_Percent_Other) |>
-  str()
+  filter(Year >= 2010, Year <= 2022) |>
+  select(County, Year, Total_Revenue, Revenue_Percent_Property_Tax, Revenue_Percent_Grant, Revenue_Percent_Activities, Revenue_Percent_Other)
+
+str(rev)
 ```
 
-    ## tibble [1,485 × 7] (S3: tbl_df/tbl/data.frame)
-    ##  $ County                      : chr [1:1485] "MONROE" "JOHNSON" "ADAMS" "MUSCATINE" ...
-    ##  $ Year                        : num [1:1485] 2019 2016 2019 2010 2023 ...
-    ##  $ Total_Revenue               : num [1:1485] 3.13e+06 1.13e+08 9.73e+06 4.02e+07 1.54e+07 ...
-    ##  $ Revenue_Percent_Property_Tax: num [1:1485] 1 0.435 0.351 0.32 0.365 ...
-    ##  $ Revenue_Percent_Grant       : num [1:1485] 0 0.181 0.36 0.235 0.397 ...
-    ##  $ Revenue_Percent_Activities  : num [1:1485] 0 0.0479 0.0605 0.0328 0.0499 0.0559 0.0441 0.0337 0.0404 0.0364 ...
-    ##  $ Revenue_Percent_Other       : num [1:1485] 0 0.336 0.228 0.412 0.188 ...
+    ## tibble [1,287 × 7] (S3: tbl_df/tbl/data.frame)
+    ##  $ County                      : chr [1:1287] "MONROE" "JOHNSON" "ADAMS" "MUSCATINE" ...
+    ##  $ Year                        : num [1:1287] 2019 2016 2019 2010 2020 ...
+    ##  $ Total_Revenue               : num [1:1287] 3.13e+06 1.13e+08 9.73e+06 4.02e+07 9.94e+06 ...
+    ##  $ Revenue_Percent_Property_Tax: num [1:1287] 1 0.435 0.351 0.32 0.264 ...
+    ##  $ Revenue_Percent_Grant       : num [1:1287] 0 0.181 0.36 0.235 0.34 ...
+    ##  $ Revenue_Percent_Activities  : num [1:1287] 0 0.0479 0.0605 0.0328 0.0559 0.0441 0.0364 0.0284 0.0357 0.0663 ...
+    ##  $ Revenue_Percent_Other       : num [1:1287] 0 0.336 0.228 0.412 0.34 ...
+
+*Budgeted Expenditure Data*
+
+In cleaning the Iowa County Budgeted Expenditures Data, the County Name
+was already in the desired format. The year was extracted from the date
+and used to filter to ensure the data was between 2010 and 2024. “Total
+Budget” was kept and the various types of spending were transformed as a
+percentage of “Total Budget”. The parse_number function was utilized as
+the numbers used the dollar sign and commas.
+
+``` r
+budget_raw$`County Name` <- replace(budget_raw$`County Name`, budget_raw$`County Name` == "O'BRIEN", "OBRIEN")
+
+budget <- budget_raw |>
+  rename(
+    County_Id = County,
+    County = `County Name`,
+    Year = `Fiscal Year Ending`,
+    Total_Budget = `Total Expenditures`
+  ) |>
+  mutate(
+    Year = year(mdy(Year)),
+    Total_Budget = parse_number(Total_Budget),
+    Budgeted_Public_Safety_Percent = parse_number(`Public Safety & Legal Services`) / Total_Budget,
+    Budgeted_Mental_Health_Percent = parse_number(`Mental Health MR, DD`) / Total_Budget,
+    Budgeted_Roads_Transportation_Percent = parse_number(`Roads & Transportation`) / Total_Budget,
+    Budgeted_Administration_Percent = parse_number(Administration) / Total_Budget,
+    Budgeted_Debt_Percent = parse_number(`Debt Service`) / Total_Budget,
+    Budgeted_Physical_Health_Percent = parse_number(`Physical Health & Social Services`) / Total_Budget,
+    Budgeted_Environment_Education_Percent = parse_number(`County Environment & Education`) / Total_Budget,
+    Budgeted_Services_to_Residents_Percent = parse_number(`Government Services to Residents`) / Total_Budget,
+    Budgeted_Refunded_Programs_Percent = parse_number(`Nonprogram Current`) / Total_Budget,
+    Budgeted_Projects_Percent = parse_number(`Capital Projects`) / Total_Budget,
+    Budgeted_Transfers_Out_Percent = parse_number(`Operating Transfers Out`) / Total_Budget,
+    Budgeted_Refunded_Debt_Percent = parse_number(`Refunded Debt/Escrow`) / Total_Budget
+  ) |>
+  select(County, Year, Total_Budget, Budgeted_Public_Safety_Percent, Budgeted_Mental_Health_Percent, Budgeted_Roads_Transportation_Percent, Budgeted_Administration_Percent, Budgeted_Debt_Percent, Budgeted_Physical_Health_Percent, Budgeted_Environment_Education_Percent, Budgeted_Services_to_Residents_Percent, Budgeted_Refunded_Programs_Percent, Budgeted_Projects_Percent, Budgeted_Transfers_Out_Percent, Budgeted_Refunded_Debt_Percent) |>
+  filter(Year >= 2010, Year <= 2022)
+
+str(budget)
+```
+
+    ## tibble [1,287 × 15] (S3: tbl_df/tbl/data.frame)
+    ##  $ County                                : chr [1:1287] "WEBSTER" "IDA" "IDA" "MILLS" ...
+    ##  $ Year                                  : num [1:1287] 2011 2015 2016 2020 2021 ...
+    ##  $ Total_Budget                          : num [1:1287] 28919272 8345191 8148853 24736697 17165027 ...
+    ##  $ Budgeted_Public_Safety_Percent        : num [1:1287] 0.17 0.0958 0.0973 0.1588 0.18 ...
+    ##  $ Budgeted_Mental_Health_Percent        : num [1:1287] 0.1744 0.0474 0.0307 0.0112 0.0182 ...
+    ##  $ Budgeted_Roads_Transportation_Percent : num [1:1287] 0.218 0.364 0.433 0.259 0.32 ...
+    ##  $ Budgeted_Administration_Percent       : num [1:1287] 0.0876 0.0906 0.0942 0.1811 0.0875 ...
+    ##  $ Budgeted_Debt_Percent                 : num [1:1287] 0.0198 0 0 0.0542 0 ...
+    ##  $ Budgeted_Physical_Health_Percent      : num [1:1287] 0.0817 0.0368 0.0405 0.0926 0.047 ...
+    ##  $ Budgeted_Environment_Education_Percent: num [1:1287] 0.0404 0.0465 0.0493 0.0688 0.0674 ...
+    ##  $ Budgeted_Services_to_Residents_Percent: num [1:1287] 0.0274 0.0315 0.0341 0.0257 0.0316 ...
+    ##  $ Budgeted_Refunded_Programs_Percent    : num [1:1287] 0.00692 0 0 0 0 ...
+    ##  $ Budgeted_Projects_Percent             : num [1:1287] 0.102 0.1552 0.0841 0.0437 0.1503 ...
+    ##  $ Budgeted_Transfers_Out_Percent        : num [1:1287] 0.0719 0.1325 0.1365 0.1052 0.0979 ...
+    ##  $ Budgeted_Refunded_Debt_Percent        : num [1:1287] 0 0 0 0 0 0 0 0 0 0 ...
+
+*Actual Expenditure Data*
+
+In cleaning the Iowa County Actual Expenditures Data, the County Name
+and Year were already in the desired format. The year was used to filter
+to ensure the data was between 2010 and 2024. “Total Expenditures” was
+kept and the various types of spending were transformed as a percentage
+of “Total Budget”.
+
+``` r
+spend <- spend_raw |>
+  rename(
+    Year = `FISCAL YEAR`,
+    Total_Expenditure = `TOTAL EXPENDITURES & OTHER USES`
+  ) |>
+  mutate(
+    Actual_Public_Safety_Percent = `PUBLIC SAFETY AND LEGAL SERVICES` / Total_Expenditure,
+    Actual_Mental_Health_Percent = `MENTAL HEALTH, ID & DD` / Total_Expenditure,
+    Actual_Roads_Transportation_Percent = `ROADS & TRANSPORTATION` / Total_Expenditure,
+    Actual_Administration_Percent = ADMINISTRATION / Total_Expenditure,
+    Actual_Debt_Percent = `DEBT SERVICE` / Total_Expenditure,
+    Actual_Physical_Health_Percent = `PHYSICAL HEALTH SOCIAL SERVICES` / Total_Expenditure,
+    Actual_Environment_Education_Percent = `COUNTY ENVIRONMENT AND EDUCATION` / Total_Expenditure,
+    Actual_Services_to_Residents_Percent = `GOVERNMENT SERVICES TO RESIDENTS` / Total_Expenditure,
+    Actual_Refunded_Programs_Percent = `NONPROGRAM CURRENT` / Total_Expenditure,
+    Actual_Projects_Percent = `CAPITAL PROJECTS` / Total_Expenditure,
+    Actual_Transfers_Out_Percent = `OPERATING TRANSFERS OUT` / Total_Expenditure,
+    Actual_Refunded_Debt_Percent = `REFUNDED DEBT/PAYMENTS TO ESCROW` / Total_Expenditure
+  ) |>
+  select(County, Year, Total_Expenditure, Actual_Public_Safety_Percent, Actual_Mental_Health_Percent, Actual_Roads_Transportation_Percent, Actual_Administration_Percent, Actual_Debt_Percent, Actual_Physical_Health_Percent, Actual_Environment_Education_Percent, Actual_Services_to_Residents_Percent, Actual_Refunded_Programs_Percent, Actual_Projects_Percent, Actual_Transfers_Out_Percent, Actual_Refunded_Debt_Percent) |>
+  filter(Year >= 2010, Year <= 2022)
+
+str(spend)
+```
+
+    ## tibble [1,287 × 15] (S3: tbl_df/tbl/data.frame)
+    ##  $ County                              : chr [1:1287] "JOHNSON" "ADAMS" "MUSCATINE" "IDA" ...
+    ##  $ Year                                : num [1:1287] 2016 2019 2010 2020 2018 ...
+    ##  $ Total_Expenditure                   : num [1:1287] 1.07e+08 9.93e+06 3.57e+07 2.15e+07 1.34e+07 ...
+    ##  $ Actual_Public_Safety_Percent        : num [1:1287] 0.1961 0.1475 0.2031 0.0449 0.1742 ...
+    ##  $ Actual_Mental_Health_Percent        : num [1:1287] 0.07158 0.018 0.13283 0.00982 0.03449 ...
+    ##  $ Actual_Roads_Transportation_Percent : num [1:1287] 0.0843 0.3555 0.1821 0.1447 0.322 ...
+    ##  $ Actual_Administration_Percent       : num [1:1287] 0.0715 0.0781 0.0719 0.0422 0.1021 ...
+    ##  $ Actual_Debt_Percent                 : num [1:1287] 0.1347 0.0878 0.1073 0.0249 0 ...
+    ##  $ Actual_Physical_Health_Percent      : num [1:1287] 0.08376 0.01998 0.03935 0.00995 0.02598 ...
+    ##  $ Actual_Environment_Education_Percent: num [1:1287] 0.0372 0.0872 0.0514 0.0378 0.0748 ...
+    ##  $ Actual_Services_to_Residents_Percent: num [1:1287] 0.0201 0.0332 0.022 0.0143 0.038 ...
+    ##  $ Actual_Refunded_Programs_Percent    : num [1:1287] 2.77e-05 0.00 2.35e-03 0.00 7.87e-03 ...
+    ##  $ Actual_Projects_Percent             : num [1:1287] 0.1051 0.0621 0.1134 0.5879 0.0708 ...
+    ##  $ Actual_Transfers_Out_Percent        : num [1:1287] 0.1956 0.1106 0.0742 0.0836 0.1497 ...
+    ##  $ Actual_Refunded_Debt_Percent        : num [1:1287] 0 0 0 0 0 0 0 0 0 0 ...
+
+Now that each data set has been cleaned individually, they can now be
+joined on “County” and “Year”.
+
+``` r
+join1 <- inner_join(pop, income, by = c('County', 'Year'))
+join2 <- inner_join(join1, rev, by = c('County', 'Year'))
+join3 <- inner_join(join2, budget, by = c('County', 'Year'))
+data <- inner_join(join3, spend, by = c('County', 'Year'))
+
+# data |>
+#  group_by(Year) |>
+#  summarize(
+#    count = n_distinct(County)
+#  )
+
+# sort(unique(data$County))
+```
+
+After checking that the join worked, it seemed that the use of an
+apostrophe in some datasets for O’Brien county did not work with the
+ones that did not so it was necessary to ensure this was fixed.
 
 ### Data Structure
 

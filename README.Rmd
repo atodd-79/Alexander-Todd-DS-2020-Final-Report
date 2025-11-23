@@ -1,0 +1,14 @@
+---
+title: "README"
+author: "Alexander M. Todd"
+date: "2025-11-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Alexander-Todd-DS-2020-Final-Report
+
+# Analyzing Differences in Iowa County Government Spending

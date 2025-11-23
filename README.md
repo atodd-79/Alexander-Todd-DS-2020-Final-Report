@@ -1,8 +1,18 @@
-README
-================
-Alexander M. Todd
-2025-11-23
 
-# Alexander-Todd-DS-2020-Final-Report
+# Analyzing Differences in Iowa Counties’ Spending
 
-# Analyzing Differences in Iowa County Government Spending
+#### Alexander M. Todd - November 23rd, 2025
+
+## Introduction
+
+## Data
+
+### Original Data
+
+### Data Preparation and Cleaning
+
+### Data Structure
+
+## Results
+
+## Conclusion

@@ -12,8 +12,33 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
+Government's spend money on various different services. With many ways to collect and spend money, there is significant variety in how a Government allocated funds. The goal of this report is to understand how the various counties in Iowa collect, allocate, and spend its wealth.
+
 ## Data
+
 ### Original Data
+
+The data used in this report comes from the [State of Iowa Open Data Website](https://data.iowa.gov/). There were 5 sets of data utilized in this report:
+
+1.  [Annual Personal Income by County](https://data.iowa.gov/Economic-Statistics/Annual-Personal-Income-for-State-of-Iowa-by-County/st2k-2ti2/about_data)
+
+Included is the 'Personal Income' and 'Personal Income Per Capita' for each Iowa County for each year between 1997 and 2022.
+
+2.  [County Actual Revenues](https://data.iowa.gov/Local-Government-Finance/County-Actual-Revenues-By-Type-By-Fiscal-Year/fp2u-f5hd/about_data)
+
+Included is the Total Revenue gained by each Iowa County for each year between 2010 and 2024. There are many variables that split the Revenue by type, most notably the revenue levied by Property Tax and that provided by county issued goods and services.
+
+3.  [County Budgeted Expenditures](https://data.iowa.gov/Local-Government-Finance/County-Budgeted-Expenditures-By-Service-Area-By-Fi/gk9s-gz9c/about_data)
+
+Included is the budgeted spending for each Iowa County for each year between 2005 and 2026. The budget is split based on type of spending for which the money is allocated in the budget.
+
+4.  [County Actual Expenditures](https://data.iowa.gov/Local-Government-Finance/County-Actual-Expenditures-by-Service-Area-by-Fisc/fxbr-vb9c/about_data)
+
+Included is actual spending for each Iowa County for each year between 2010 and 2024. The spending is split based on type of spending for which the money was used.
+
+5.  [County Population](https://data.iowa.gov/Community-Demographics/County-Population-in-Iowa-by-Year/qtnr-zsrc/about_data)
+
+Included is the number of people in each Iowa County for each year between 1990 and 2024.
 
 ### Data Preparation and Cleaning
 
@@ -22,4 +47,3 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Results
 
 ## Conclusion
-

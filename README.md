@@ -424,11 +424,197 @@ data <- inner_join(join3, spend, by = c('County', 'Year'))
 ```
 
 After checking that the join worked, it seemed that the use of an
-apostrophe in some datasets for O’Brien county did not work with the
-ones that did not so it was necessary to ensure this was fixed.
+apostrophe in some data sets for O’Brien county did not work with the
+ones that did not so it was necessary to ensure this was fixed by going
+back and ensuring that any entry in the data sets with an apostrophe
+were replaced with the name without.
 
 ### Data Structure
 
+``` r
+write.csv(data, 'data/Final_Data.csv')
+str(data)
+```
+
+    ## tibble [1,287 × 36] (S3: tbl_df/tbl/data.frame)
+    ##  $ County                                : chr [1:1287] "STORY" "CLAYTON" "JOHNSON" "JEFFERSON" ...
+    ##  $ Year                                  : num [1:1287] 2011 2012 2021 2018 2016 ...
+    ##  $ Population                            : num [1:1287] 91136 17946 155047 18256 222188 ...
+    ##  $ Personal_Income                       : num [1:1287] 3.22e+09 7.50e+08 9.45e+09 7.18e+08 1.10e+10 ...
+    ##  $ Personal_Income_Per_Capita            : num [1:1287] 35307 41942 60934 45057 49173 ...
+    ##  $ Total_Revenue                         : num [1:1287] 4.18e+07 1.88e+07 1.57e+08 1.33e+07 1.36e+08 ...
+    ##  $ Revenue_Percent_Property_Tax          : num [1:1287] 0.481 0.372 0.402 0.45 0.436 ...
+    ##  $ Revenue_Percent_Grant                 : num [1:1287] 0.351 0.335 0.284 0.325 0.238 ...
+    ##  $ Revenue_Percent_Activities            : num [1:1287] 0.05 0.0376 0.0444 0.0536 0.0711 0.0676 0.0722 0.0327 0.0412 0.0766 ...
+    ##  $ Revenue_Percent_Other                 : num [1:1287] 0.118 0.255 0.269 0.171 0.255 ...
+    ##  $ Total_Budget                          : num [1:1287] 4.22e+07 1.80e+07 1.44e+08 1.39e+07 1.24e+08 ...
+    ##  $ Budgeted_Public_Safety_Percent        : num [1:1287] 0.223 0.142 0.199 0.235 0.21 ...
+    ##  $ Budgeted_Mental_Health_Percent        : num [1:1287] 0.2067 0.1179 0.0445 0.0415 0.1266 ...
+    ##  $ Budgeted_Roads_Transportation_Percent : num [1:1287] 0.1206 0.3535 0.0749 0.3067 0.1051 ...
+    ##  $ Budgeted_Administration_Percent       : num [1:1287] 0.1088 0.0717 0.0779 0.0943 0.1153 ...
+    ##  $ Budgeted_Debt_Percent                 : num [1:1287] 0.0456 0.0141 0.1421 0.0282 0.0156 ...
+    ##  $ Budgeted_Physical_Health_Percent      : num [1:1287] 0.051 0.0389 0.0991 0.0628 0.1183 ...
+    ##  $ Budgeted_Environment_Education_Percent: num [1:1287] 0.0582 0.0688 0.0448 0.0537 0.058 ...
+    ##  $ Budgeted_Services_to_Residents_Percent: num [1:1287] 0.0281 0.0369 0.0233 0.0405 0.0355 ...
+    ##  $ Budgeted_Refunded_Programs_Percent    : num [1:1287] 0 0.000072 0.001151 0.00036 0 ...
+    ##  $ Budgeted_Projects_Percent             : num [1:1287] 0.1089 0.0785 0.1661 0.0646 0.064 ...
+    ##  $ Budgeted_Transfers_Out_Percent        : num [1:1287] 0.0492 0.0776 0.1273 0.0728 0.1512 ...
+    ##  $ Budgeted_Refunded_Debt_Percent        : num [1:1287] 0 0 0 0 0 0 0 0 0 0 ...
+    ##  $ Total_Expenditure                     : num [1:1287] 4.44e+07 1.75e+07 1.35e+08 1.37e+07 1.31e+08 ...
+    ##  $ Actual_Public_Safety_Percent          : num [1:1287] 0.208 0.145 0.191 0.242 0.198 ...
+    ##  $ Actual_Mental_Health_Percent          : num [1:1287] 0.242 0.1266 0.0521 0.0353 0.1038 ...
+    ##  $ Actual_Roads_Transportation_Percent   : num [1:1287] 0.1155 0.3187 0.0757 0.3222 0.0984 ...
+    ##  $ Actual_Administration_Percent         : num [1:1287] 0.0974 0.0789 0.0696 0.0925 0.1066 ...
+    ##  $ Actual_Debt_Percent                   : num [1:1287] 0.0433 0.0155 0.1515 0.0287 0.0147 ...
+    ##  $ Actual_Physical_Health_Percent        : num [1:1287] 0.0539 0.0452 0.0921 0.06 0.1127 ...
+    ##  $ Actual_Environment_Education_Percent  : num [1:1287] 0.0585 0.0692 0.0473 0.0571 0.055 ...
+    ##  $ Actual_Services_to_Residents_Percent  : num [1:1287] 0.0249 0.0349 0.0238 0.0412 0.0311 ...
+    ##  $ Actual_Refunded_Programs_Percent      : num [1:1287] 0 0.000126 0.000318 0 0 ...
+    ##  $ Actual_Projects_Percent               : num [1:1287] 0.1102 0.0854 0.16 0.0273 0.1083 ...
+    ##  $ Actual_Transfers_Out_Percent          : num [1:1287] 0.0467 0.0801 0.1362 0.0941 0.171 ...
+    ##  $ Actual_Refunded_Debt_Percent          : num [1:1287] 0 0 0 0 0 0 0 0 0 0 ...
+
+``` r
+head(data, 5)
+```
+
+    ## # A tibble: 5 × 36
+    ##   County    Year Population Personal_Income Personal_Income_Per_…¹ Total_Revenue
+    ##   <chr>    <dbl>      <dbl>           <dbl>                  <dbl>         <dbl>
+    ## 1 STORY     2011      91136      3220461000                  35307      41848391
+    ## 2 CLAYTON   2012      17946       749712000                  41942      18763194
+    ## 3 JOHNSON   2021     155047      9445679000                  60934     156611011
+    ## 4 JEFFERS…  2018      18256       718349000                  45057      13344442
+    ## 5 LINN      2016     222188     11005564000                  49173     136204540
+    ## # ℹ abbreviated name: ¹​Personal_Income_Per_Capita
+    ## # ℹ 30 more variables: Revenue_Percent_Property_Tax <dbl>,
+    ## #   Revenue_Percent_Grant <dbl>, Revenue_Percent_Activities <dbl>,
+    ## #   Revenue_Percent_Other <dbl>, Total_Budget <dbl>,
+    ## #   Budgeted_Public_Safety_Percent <dbl>, Budgeted_Mental_Health_Percent <dbl>,
+    ## #   Budgeted_Roads_Transportation_Percent <dbl>,
+    ## #   Budgeted_Administration_Percent <dbl>, Budgeted_Debt_Percent <dbl>, …
+
+There are 1287 observations in this data set. This is to be expected
+considering there are 99 counties and 13 years considered between 2010
+and 2022. 99 \* 13 is 1287 meaning that each county is represented for
+each year.
+
+**Variables**
+
+- County: The Name of the County in Iowa.
+
+- Year: The Year of the Observation (between 2010 and 2022).
+
+- Population: The Number of People Living in the County during the Year.
+
+- Personal_Income: Total Number of Personal Income Earned.
+
+- Personal_Income_Per_Capita: Total Personal Income divided by
+  Population (\*Note that this number comes from the State of Iowa
+  Database and is not the number based on the Population and
+  Personal_Income variables in the data set).
+
+- Total_Revenue: Total Revenue brought in by the County during the Year.
+
+- Revenue_Percent_Property_Tax: Percent of Total_Revenue that comes from
+  Property Taxes.
+
+- Revenue_Percent_Grant: Percent of Total_Revenue that comes from Grants
+  from other Governments.
+
+- Revenue_Percent_Activities: Percent of Total_Revenue that comes from
+  Licenses/Permits, Charges for Government Goods and Services, and from
+  the Use of Government Money and Property.
+
+- Revenue_Percent_Other: Percent of Total_Revenue that comes from any
+  other activity not already distinguished.
+
+- Total_Budget: Total Annual Budget allocated by the County.
+
+- Budgeted_Public_Safety_Percent: Percent of Total_Budget allocated to
+  Public Safety.
+
+- Budgeted_Mental_Health_Percent: Percent of Total_Budget allocated to
+  Mental Health.
+
+- Budgeted_Roads_Transportation_Percent: Percent of Total_Budget
+  allocated to Roads and Transportation.
+
+- Budgeted_Administration_Percent: Percent of Total_Budget allocated to
+  Administration Expenses.
+
+- Budgeted_Debt_Percent: Percent of Total_Budget allocated to repaying
+  Debt.
+
+- Budgeted_Physical_Health_Percent: Percent of Total_Budget allocated to
+  Physical Health.
+
+- Budgeted_Environment_Education_Percent: Percent of Total_Budget
+  allocated to the Environment and Education.
+
+- Budgeted_Services_to_Residents_Percent: Percent of Total_Budget
+  allocated to Public Services.
+
+- Budgeted_Refunded_Programs_Percent: Percent of Total_Budget allocated
+  to “NonProgram Current” which includes the allocation of refunds from
+  prior year revenues, pass-through grants, and county farm expenses.
+
+- Budgeted_Projects_Percent: Percent of Total_Budget allocated to the
+  completion of Capital Improvement Projects.
+
+- Budgeted_Transfers_Out_Percent: Percent of Total_Budget allocated to
+  loan transferring to repaying past Budgets.
+
+- Budgeted_Refunded_Debt_Percent: Percent of Total_Budget allocated to
+  repaying Debt Principals.
+
+- Total_Expenditure: Total Actual Annual Expenditures by the County
+
+- Actual_Public_Safety_Percent: Percent of Total_Expenditure spent on
+  Public Safety.
+
+- Actual_Mental_Health_Percent: Percent of Total_Expenditure spent on
+  Mental Health.
+
+- Actual_Roads_Transportation_Percent: Percent of Total_Expenditure
+  spent on Roads and Transportation.
+
+- Actual_Administration_Percent: Percent of Total_Expenditure spent on
+  Administration Expenses.
+
+- Actual_Debt_Percent: Percent of Total_Expenditure spent on repaying
+  Debt.
+
+- Actual_Physical_Health_Percent: Percent of Total_Expenditure spent on
+  Physical Health.
+
+- Actual_Environment_Education_Percent: Percent of Total_Expenditure
+  spent on the Environment and Education.
+
+- Actual_Services_to_Residents_Percent: Percent of Total_Expenditure
+  spent on Public Services.
+
+- Actual_Refunded_Programs_Percent: Percent of Total_Expenditure spent
+  on “NonProgram Current” which includes the allocation of refunds from
+  prior year revenues, pass-through grants, and county farm expenses.
+
+- Actual_Projects_Percent: Percent of Total_Expenditure spent on the
+  completion of Capital Improvement Projects.
+
+- Actual_Transfers_Out_Percent: Percent of Total_Expenditure spent on
+  loan transferring to repaying past Budgets.
+
+- Actual_Refunded_Debt_Percent: Percent of Total_Expenditure spent on
+  repaying Debt Principals.
+
 ## Results
+
+### QUESTION 1
+
+### QUESTION 2
+
+### QUESTION 3
+
+### QUESTION 4
 
 ## Conclusion

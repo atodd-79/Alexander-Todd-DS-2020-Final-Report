@@ -261,10 +261,102 @@ data <- inner_join(join3, spend, by = c('County', 'Year'))
 # sort(unique(data$County))
 ```
 
-After checking that the join worked, it seemed that the use of an apostrophe in some datasets for O'Brien county did not work with the ones that did not so it was necessary to ensure this was fixed.
+After checking that the join worked, it seemed that the use of an apostrophe in some data sets for O'Brien county did not work with the ones that did not so it was necessary to ensure this was fixed by going back and ensuring that any entry in the data sets with an apostrophe were replaced with the name without.
 
 ### Data Structure
 
+```{r}
+
+write.csv(data, 'data/Final_Data.csv')
+str(data)
+head(data, 5)
+
+```
+
+There are 1287 observations in this data set. This is to be expected considering there are 99 counties and 13 years considered between 2010 and 2022. 99 * 13 is 1287 meaning that each county is represented for each year. 
+
+**Variables**
+
+- County: The Name of the County in Iowa.
+
+- Year: The Year of the Observation (between 2010 and 2022).
+
+- Population: The Number of People Living in the County during the Year.
+
+- Personal_Income: Total Number of Personal Income Earned.
+
+- Personal_Income_Per_Capita: Total Personal Income divided by Population (*Note that this number comes from the State of Iowa Database and is not the number based on the Population and Personal_Income variables in the data set).
+
+- Total_Revenue: Total Revenue brought in by the County during the Year.
+
+- Revenue_Percent_Property_Tax: Percent of Total_Revenue that comes from Property Taxes.
+
+- Revenue_Percent_Grant: Percent of Total_Revenue that comes from Grants from other Governments.
+
+- Revenue_Percent_Activities: Percent of Total_Revenue that comes from Licenses/Permits, Charges for Government Goods and Services, and from the Use of Government Money and Property.
+
+- Revenue_Percent_Other: Percent of Total_Revenue that comes from any other activity not already distinguished.
+
+- Total_Budget: Total Annual Budget allocated by the County.
+
+- Budgeted_Public_Safety_Percent: Percent of Total_Budget allocated to Public Safety.
+
+- Budgeted_Mental_Health_Percent: Percent of Total_Budget allocated to Mental Health.
+
+- Budgeted_Roads_Transportation_Percent: Percent of Total_Budget allocated to Roads and Transportation.
+
+- Budgeted_Administration_Percent: Percent of Total_Budget allocated to Administration Expenses.
+
+- Budgeted_Debt_Percent: Percent of Total_Budget allocated to repaying Debt.
+
+- Budgeted_Physical_Health_Percent: Percent of Total_Budget allocated to Physical Health.
+
+- Budgeted_Environment_Education_Percent: Percent of Total_Budget allocated to the Environment and Education.
+
+- Budgeted_Services_to_Residents_Percent: Percent of Total_Budget allocated to Public Services.
+
+- Budgeted_Refunded_Programs_Percent: Percent of Total_Budget allocated to "NonProgram Current" which includes the allocation of refunds from prior year revenues, pass-through grants, and county farm expenses.
+
+- Budgeted_Projects_Percent: Percent of Total_Budget allocated to the completion of Capital Improvement Projects.
+
+- Budgeted_Transfers_Out_Percent: Percent of Total_Budget allocated to loan transferring to repaying past Budgets.
+
+- Budgeted_Refunded_Debt_Percent: Percent of Total_Budget allocated to repaying Debt Principals.
+
+- Total_Expenditure: Total Actual Annual Expenditures by the County
+
+- Actual_Public_Safety_Percent: Percent of Total_Expenditure spent on Public Safety.
+
+- Actual_Mental_Health_Percent: Percent of Total_Expenditure spent on Mental Health.
+
+- Actual_Roads_Transportation_Percent: Percent of Total_Expenditure spent on Roads and Transportation.
+
+- Actual_Administration_Percent: Percent of Total_Expenditure spent on Administration Expenses.
+
+- Actual_Debt_Percent: Percent of Total_Expenditure spent on repaying Debt.
+
+- Actual_Physical_Health_Percent: Percent of Total_Expenditure spent on Physical Health.
+
+- Actual_Environment_Education_Percent: Percent of Total_Expenditure spent on the Environment and Education.
+
+- Actual_Services_to_Residents_Percent: Percent of Total_Expenditure spent on Public Services.
+
+- Actual_Refunded_Programs_Percent: Percent of Total_Expenditure spent on "NonProgram Current" which includes the allocation of refunds from prior year revenues, pass-through grants, and county farm expenses.
+
+- Actual_Projects_Percent: Percent of Total_Expenditure spent on the completion of Capital Improvement Projects.
+
+- Actual_Transfers_Out_Percent: Percent of Total_Expenditure spent on loan transferring to repaying past Budgets.
+
+- Actual_Refunded_Debt_Percent: Percent of Total_Expenditure spent on repaying Debt Principals.
+
 ## Results
+
+### QUESTION 1
+
+### QUESTION 2
+
+### QUESTION 3
+
+### QUESTION 4
 
 ## Conclusion

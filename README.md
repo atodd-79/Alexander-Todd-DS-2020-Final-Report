@@ -609,12 +609,215 @@ each year.
 
 ## Results
 
-### QUESTION 1
+### Differences in How Iowa Counties Receive their Funds
 
-### QUESTION 2
+What are the general differences between counties in how much they make?
+How is this affected by a county’s population? Does population affect
+how a county receives most of its funds?
 
-### QUESTION 3
+``` r
+iowa <- map_data('county', 'iowa')
 
-### QUESTION 4
+iowa <- iowa |>
+  mutate(
+    County = toupper(subregion)
+  )
+
+funding_data <- data |>
+  group_by(County) |>
+  summarize(
+    `Revenue in Millions` = mean(Total_Revenue / 1000000),
+    `Population in Thousands` = mean(Population / 1000),
+    Income = mean(Personal_Income_Per_Capita),
+    `Percent from Property Tax` = mean(Revenue_Percent_Property_Tax),
+    `Percent from Grants` = mean(Revenue_Percent_Grant),
+    `Percent from Activities` = mean(Revenue_Percent_Activities),
+    `Percent from Other` = mean(Revenue_Percent_Other)
+  ) |>
+  left_join(iowa, by = 'County')
+
+ggplot(funding_data, aes(x = long, y = lat, fill = `Revenue in Millions`)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
+  theme_void() +
+  labs(title = "Revenue by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+This map shows the average Revenue in the millions for each county. This
+was created after merging R’s county longitude and latitude data with
+the dataset that was grouped by County and the average for every year of
+Revenue, Population, and Income was found.
+
+The map shows counties like Polk, Linn, Scott, and Johnson having the
+highest revenue. These cities hold the most population in the state, so
+at first glance it seems counties with a higher population hold a
+greater funding.
+
+``` r
+ggplot(funding_data, aes(x = long, y = lat, fill = `Population in Thousands`)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
+  theme_void() +
+  labs(title = "Population by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+This shows the Iowa Counties by the average population every year in the
+thousands. This map looks very similar to the Revenue map, with counties
+with high population having high revenue and those with low population
+have low revenue.
+
+``` r
+funding_data <- funding_data |>
+  mutate(Revenue_by_Pop = (`Revenue in Millions` * 1000000) / (`Population in Thousands` * 1000))
+
+ggplot(funding_data, aes(x = long, y = lat, fill = Revenue_by_Pop)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
+  theme_void() +
+  labs(title = "Population by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+In order to gain a better picture of how Population and Revenue are
+related, this map which shows the Revenue by Population for each county
+in Iowa was created. If Population and Revenue were directly correlated,
+one would expect that each county would be about the same color, meaning
+that each were funded equivalently by person. However, a range of
+counties in western Iowa show a much higher Revenue to Population ratio,
+meaning despite having fewer people, they make more money. Ringgold
+county stands out as having the highest ratio. It is the second smallest
+county in Iowa by population. Adams county, the smallest county, shows a
+high Revenue to Population ratio as well. It seems that while a higher
+population generally means a county will make more revenue, counties
+with smaller populations make more money per person than more populated
+counties.
+
+``` r
+ggplot(funding_data, aes(x = `Population in Thousands`, 
+                         y = Revenue_by_Pop, color = `Revenue in Millions`)) +
+  geom_point() +
+  labs(title = "Revenue by Population vs Population")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+This scatterplot more clearly shows how as Population increases, the
+Revenue by Population decreasingly decreases. This means that there is
+some element of funding that provides counties with lower populations to
+gain revenue. One would expect that counties with a higher population
+will have a higher percent of their revenue come from Property Tax and
+Activities. Given this data, one may assume that counties with lower
+populations may receive more of their revenue in Grants from State and
+Federal programs.
+
+``` r
+ggplot(funding_data, aes(x = log(`Population in Thousands`), y = `Percent from Property Tax`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+    labs(title = "Percent of Revenue from Property Tax by Population")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+This graph proves what one would expect, that as Population increases
+the percent of revenue coming from Property Tax increases. The
+population is logarithmically transformed to adjust for the wide range
+in population (large number of counties with low populations and fewer
+with higher).
+
+``` r
+ggplot(funding_data, aes(x = log(`Population in Thousands`), y = `Percent from Activities`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+    labs(title = "Percent of Revenue from Activities by Population")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+This graph shows the correlation between Population and Percent of
+Revenue that comes from Activities. It is clear that as one would
+expect, the higher the population, the higher percentage of revenue
+comes from county business activities. However, this is not as strong as
+it was for property tax and likely the counties with higher percentage
+coming from activities when compared to Population may have more
+economic business such as licensing, financial lending, and selling
+services like public transportation.
+
+``` r
+Ringgold <- funding_data |> dplyr::filter(County == "RINGGOLD")
+
+#Ringgold
+
+#funding_data
+
+ggplot(funding_data, aes(x = log(`Population in Thousands`), y = `Percent from Grants`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+  geom_point(data = Ringgold, color = "red") +
+  geom_text(data = Ringgold, aes(label = "Ringgold County"), size = 2.5, vjust = -0.5) +
+  labs(title = "Percent of Revenue from Grants by Population")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+This final graph shows a clear correlation between Population and the
+percentage of a County’s Revenue that comes from Grants. This explains
+why counties with a lower population have more Revenue per Population
+than others. This money likely comes in the form of State of Federal
+Grants intended to support counties that may not have enough population
+to support their government spending. In the future, doing more research
+into these grants could give a more well-rounded picture of this
+phenomenon.
+
+Ringgold County is highlighted in red. One can see that it has the
+highest proportion of its Revenue coming from intergovernmental grants
+and has the largest Revenue to Population ratio, showing the effect of
+these grants on Revenue despite population.
+
+### Differences in What a County Spends its Money on
+
+What are the general differences between counties in how much they
+spend? How is this affected by a county’s population and income? How has
+this changed over time? Does population affect what a county spends its
+money on?
+
+### Differences in Budgeted and Actual Expenditures by Type of Spending
+
+For each spending type, what is the difference between budgeted and
+actual expenditures?
+
+### Most Fiscally Responsible Counties
+
+What counties are the best at following their budget? How has this
+changed over time?
 
 ## Conclusion

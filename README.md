@@ -13,10 +13,20 @@ spend its wealth.
 
 The questions explored in this report are:
 
-1.  
-2.  
-3.  
-4.  
+1.  What are the general differences between counties in how much they
+    make? How is this affected by a county’s population? Does population
+    affect how a county receives most of its funds?
+
+2.  What are the general differences between counties in how much they
+    spend? How is this affected by a county’s population? How has this
+    changed over time? Does population and income affect what a county
+    spends its money on?
+
+3.  For each spending type, what is the difference between budgeted and
+    actual expenditures?
+
+4.  What counties are the best at following their budget and revenue?
+    How has this changed over time?
 
 ## Data
 
@@ -1169,8 +1179,8 @@ that they are able to use to pay off debt.
 
 ### Most Fiscally Responsible Counties
 
-What counties are the best at following their budget? How has this
-changed over time?
+What counties are the best at following their budget and revenue? How
+has this changed over time?
 
 ``` r
 complete_difference <- data |>
@@ -1194,7 +1204,7 @@ ggplot(county_difference_data, aes(x = long, y = lat, fill = Spending_to_Budget_
   labs(title = "Expenditure to Budget Percent Difference by County") +
   theme(
     plot.title = element_text(
-      size = 20, 
+      size = 12, 
       face = "bold",
       hjust = 0.5)
     )
@@ -1223,7 +1233,7 @@ ggplot(county_difference_data2, aes(x = long, y = lat, fill = Spending_to_Budget
   labs(title = "Absolute Expenditure to Budget Percent Difference by County") +
   theme(
     plot.title = element_text(
-      size = 20, 
+      size = 12, 
       face = "bold",
       hjust = 0.5)
     )
@@ -1245,7 +1255,7 @@ ggplot(county_difference_data, aes(x = long, y = lat,
   labs(title = "Expenditure to Revenue Percent Difference by County") +
   theme(
     plot.title = element_text(
-      size = 20, 
+      size = 12, 
       face = "bold",
       hjust = 0.5)
     )
@@ -1329,7 +1339,7 @@ ggplot(complete_difference, aes(x = long, y = lat,
   labs(title = "Expenditure to Revenue Percent Difference Each Year") +
   theme(
     plot.title = element_text(
-      size = 20, 
+      size = 12, 
       face = "bold",
       hjust = 0.5)
     ) +

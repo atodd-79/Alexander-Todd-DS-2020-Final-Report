@@ -425,7 +425,7 @@ ggplot(funding_data, aes(x = long, y = lat, fill = Revenue_by_Pop)) +
   geom_polygon(aes(group = group)) +
   scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
   theme_void() +
-  labs(title = "Population by County") +
+  labs(title = "Revenue to Population by County") +
   theme(
     plot.title = element_text(
       size = 20, 
@@ -435,11 +435,13 @@ ggplot(funding_data, aes(x = long, y = lat, fill = Revenue_by_Pop)) +
 
 ```
 
-In order to gain a better picture of how Population and Revenue are related, this map which shows the Revenue by Population for each county in Iowa was created. If Population and Revenue were directly correlated, one would expect that each county would be about the same color, meaning that each were funded equivalently by person. However, a range of counties in western Iowa show a much higher Revenue to Population ratio, meaning despite having fewer people, they make more money. Ringgold county stands out as having the highest ratio. It is the second smallest county in Iowa by population. Adams county, the smallest county, shows a high Revenue to Population ratio as well. It seems that while a higher population generally means a county will make more revenue, counties with smaller populations make more money per person than more populated counties.
+In order to gain a better picture of how Population and Revenue are related, this map which shows the Revenue by Population for each county in Iowa was created. If Population and Revenue were directly correlated, one would expect that each county would be about the same color, meaning that each were funded equivalently by person. However, a range of counties in western Iowa show a much higher Revenue to Population ratio, meaning despite having fewer people, they make more money. Ringgold county stands out as having the highest ratio. It is the second smallest county in Iowa by population. Adams county, the smallest county, shows a high Revenue to Population ratio as well. It seems that while a higher population generally means a county will make more revenue, counties with smaller populations make more money per person than more populated counties. 
+
+The population is logarithmically transformed to adjust for the wide range in population (large number of counties with low populations and fewer with higher).
 
 ```{r}
 
-ggplot(funding_data, aes(x = `Population in Thousands`, 
+ggplot(funding_data, aes(x = log(`Population in Thousands`), 
                          y = Revenue_by_Pop, color = `Revenue in Millions`)) +
   geom_point() +
   labs(title = "Revenue by Population vs Population")
@@ -450,14 +452,15 @@ This scatterplot more clearly shows how as Population increases, the Revenue by 
 
 ```{r}
 
-ggplot(funding_data, aes(x = log(`Population in Thousands`), y = `Percent from Property Tax`)) +
+ggplot(funding_data, aes(x = log(`Population in Thousands`), 
+                         y = `Percent from Property Tax`)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
     labs(title = "Percent of Revenue from Property Tax by Population")
 
 ```
 
-This graph proves what one would expect, that as Population increases the percent of revenue coming from Property Tax increases. The population is logarithmically transformed to adjust for the wide range in population (large number of counties with low populations and fewer with higher).
+This graph proves what one would expect, that as Population increases the percent of revenue coming from Property Tax increases. 
 
 ```{r}
 
@@ -491,18 +494,230 @@ This final graph shows a clear correlation between Population and the percentage
 
 Ringgold County is highlighted in red. One can see that it has the highest proportion of its Revenue coming from intergovernmental grants and has the largest Revenue to Population ratio, showing the effect of these grants on Revenue despite population.
 
-### Differences in What a County Spends its Money on
-
-What are the general differences between counties in how much they spend? 
-How is this affected by a county’s population and income? How has this changed over time?
-Does population affect what a county spends its money on? 
-
 ```{r}
 
-
+ggplot(funding_data, aes(x = `Percent from Grants`, y = Revenue_by_Pop)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+  geom_point(data = Ringgold, color = "red") +
+  geom_text(data = Ringgold, aes(label = "Ringgold County"), size = 2.5, vjust = -0.5) +
+  labs(title = "Percent of Revenue from Activities by Population")
 
 ```
 
+This graph shows this relationship between the percentage of a county's Revenue comes from Grant and the Revenue to Population Ratio. As the county receives more grants as a percentage of their revenue, the Revenue by Population increases. Ringgold county is once again an outlier here as they simply make way more wealth then the population they actually have. This would require more in-depth future research on Ringgold county, but they may have been highly affected by storms, disasters, or poverty leading to significant intergovernmental funding despite a limited population.
+
+### Differences in What a County Spends its Money on
+
+What are the general differences between counties in how much they spend? 
+How is this affected by a county’s population? How has this changed over time?
+Does population and income affect what a county spends its money on? 
+
+```{r}
+
+spending_data <- data |>
+  group_by(County) |>
+  summarize(
+    `Expenditure in Millions` = mean(Total_Expenditure / 1000000),
+    `Revenue in Millions` = mean(Total_Revenue / 1000000),
+    `Population in Thousands` = mean(Population / 1000),
+    Income = mean(Personal_Income_Per_Capita),
+    Actual_Public_Safety_Percent = mean(Actual_Public_Safety_Percent),
+    Actual_Mental_Health_Percent = mean(Actual_Mental_Health_Percent),
+    Actual_Roads_Transportation_Percent = mean(Actual_Roads_Transportation_Percent),
+    Actual_Administration_Percent = mean(Actual_Administration_Percent),
+    Actual_Debt_Percent = mean(Actual_Debt_Percent),
+    Actual_Physical_Health_Percent = mean(Actual_Physical_Health_Percent),
+    Actual_Environment_Education_Percent = mean(Actual_Environment_Education_Percent),
+    Actual_Services_to_Residents_Percent = mean(Actual_Services_to_Residents_Percent),
+    Actual_Refunded_Programs_Percent = mean(Actual_Refunded_Programs_Percent),
+    Actual_Projects_Percent = mean(Actual_Projects_Percent),
+    Actual_Transfers_Out_Percent = mean(Actual_Transfers_Out_Percent),
+    Actual_Refunded_Debt_Percent = mean(Actual_Refunded_Debt_Percent)
+  ) |>
+  left_join(iowa, by = 'County')
+
+ggplot(spending_data, aes(x = long, y = lat, fill = `Expenditure in Millions`)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
+  theme_void() +
+  labs(title = "Expenditure by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+
+```
+
+Now, in analyzing county expenditure, it is clear that, like Revenue, how much a county is highly related to population and highly related to the county's Revenue.
+
+```{r}
+
+spending_data <- spending_data |>
+  mutate(Expenditure_by_Pop = (`Expenditure in Millions` * 1000000) / (`Population in Thousands` * 1000))
+
+ggplot(spending_data, aes(x = long, y = lat, fill = Expenditure_by_Pop)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
+  theme_void() +
+  labs(title = "Expenditure to Population by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+
+```
+
+By now looking at the ratio of Spending to Population there is a clear difference in more rural Counties in the West and North. This means they spend more per person than the other counties. There are way more counties that have significantly higher Expenditure to Population ratios than there were with higher Revenue to Population ratios. This shows that there are many counties that spend more than they make leading to deficits. 
+
+```{r}
+
+ggplot(spending_data, aes(x = log(`Population in Thousands`), 
+                         y = Expenditure_by_Pop)) +
+  geom_point() +
+  labs(title = "Expenditure by Population vs Population")
+
+```
+
+As with Revenue, it is clear that counties with a lower population spend more per person than counties with larger populations. 
+
+```{r}
+
+spending_data2 <- data |>
+  group_by(County) |>
+  summarize(
+    `Expenditure in Millions` = mean(Total_Expenditure / 1000000),
+    `Revenue in Millions` = mean(Total_Revenue / 1000000),
+    `Population in Thousands` = mean(Population / 1000),
+    Income = mean(Personal_Income_Per_Capita),
+    Actual_Public_Safety_Percent = mean(Actual_Public_Safety_Percent),
+    Actual_Mental_Health_Percent = mean(Actual_Mental_Health_Percent),
+    Actual_Roads_Transportation_Percent = mean(Actual_Roads_Transportation_Percent),
+    Actual_Administration_Percent = mean(Actual_Administration_Percent),
+    Actual_Debt_Percent = mean(Actual_Debt_Percent),
+    Actual_Physical_Health_Percent = mean(Actual_Physical_Health_Percent),
+    Actual_Environment_Education_Percent = mean(Actual_Environment_Education_Percent),
+    Actual_Services_to_Residents_Percent = mean(Actual_Services_to_Residents_Percent),
+    Actual_Refunded_Programs_Percent = mean(Actual_Refunded_Programs_Percent),
+    Actual_Projects_Percent = mean(Actual_Projects_Percent),
+    Actual_Transfers_Out_Percent = mean(Actual_Transfers_Out_Percent),
+    Actual_Refunded_Debt_Percent = mean(Actual_Refunded_Debt_Percent)
+  ) |>
+  pivot_longer(cols = Actual_Public_Safety_Percent:Actual_Refunded_Debt_Percent,
+               names_to = 'Spending_Type',
+               values_to = 'Percent')
+
+top_10 <- spending_data2 |>
+  group_by(County) |>
+  summarize(`Population in Thousands` = mean(`Population in Thousands`)) |>
+  arrange(desc(`Population in Thousands`)) |>
+  head(10) |>
+  pull(County)
+
+lower_10 <- spending_data2 |>
+  group_by(County) |>
+  summarize(`Population in Thousands` = mean(`Population in Thousands`)) |>
+  arrange(`Population in Thousands`) |>
+  head(10) |>
+  pull(County)
+
+ten_to_ten <- c(top_10, lower_10)
+
+ggplot(spending_data2 |> dplyr::filter(County %in% ten_to_ten),
+       aes(x = reorder(County, `Population in Thousands`), y = Percent, 
+           fill = reorder(Spending_Type, Percent, mean))) +
+  geom_bar(stat = "identity", position = "stack") +
+  coord_flip() +
+  labs(title = "10 Most and Least Populous Counties Spending Type Distribution",
+       fill = "Spending Type") +
+  xlab('County') +
+  ylab('Percentage')
+
+```
+
+This stacked bar chart shows the top 10 and bottom 10 counties regarding population and the makeup of their spending. It shows the clearest and most significant difference in the top 10 and bottom 10 counties regarding percent of Spending dedicated to Roads and Transportation, Public Safety, and mental health. 
+
+```{r}
+
+ggplot(spending_data, aes(x = log(`Population in Thousands`), 
+                         y = Actual_Roads_Transportation_Percent)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+  labs(title = "Percent of Expenditure on Roads by Population")
+
+```
+
+This scatterplot further shows how with an increase in Population, there is a decrease in the percentage of their expenditure a county spends on Roads and Transportation. This relationship is likely due to how most counties in Iowa are relatively the same in size and so generally spend similar amounts of money on maintaining the roads (likely the largest driver of expense here). Therefore counties with higher populations, and therefore higher revenues devout a smaller percentage of their wealth on Roads and Transportation.
+
+```{r}
+
+ggplot(spending_data, aes(x = log(`Population in Thousands`), 
+                         y = Actual_Public_Safety_Percent)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+  labs(title = "Percent of Expenditure on Public Safety by Population")
+
+```
+
+As seen in the bar chart, this scatterplot demonstrates that counties with a higher population devout more of their Expenditure towards public safety. This makes sense as counties with higher populations require more attention to public safety as crime rates are much higher in areas with higher populations. 
+
+```{r}
+
+ggplot(spending_data, aes(x = log(`Population in Thousands`), 
+                         y = Actual_Mental_Health_Percent)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
+  labs(title = "Percent of Expenditure on Mental Health by Population")
+
+
+# spending_data |>
+#   arrange(desc(Actual_Mental_Health_Percent)) |>
+#   head(1)
+
+```
+
+Once again, the bar chart is proven accurate as there is a clear positive relationship between Population and the Percent of Expenditure a County dedicates towards Mental Health. With higher populations, there are more people that require mental health services. Interesting here is that there is one outlier, Butler County. They likely put more emphasis on mental health in this particular county although further research would be interesting in determining why.
+
+Overall these charts show that what a county spends money on is dependent on population. What about income?
+
+```{r}
+
+top_10 <- spending_data2 |>
+  group_by(County) |>
+  summarize(Income_Per_Capita = mean(Income / (`Population in Thousands` * 1000))) |>
+  arrange(desc(Income_Per_Capita)) |>
+  head(10) |>
+  pull(County)
+
+lower_10 <- spending_data2 |>
+  group_by(County) |>
+  summarize(Income_Per_Capita = mean(Income / (`Population in Thousands` * 1000))) |>
+  arrange(Income_Per_Capita) |>
+  head(10) |>
+  pull(County)
+
+ten_to_ten <- c(top_10, lower_10)
+
+spending_data2 <- spending_data2 |>
+  mutate(Income_Per_Capita = Income / (`Population in Thousands` *  1000))
+
+ggplot(spending_data2 |> dplyr::filter(County %in% ten_to_ten),
+       aes(x = reorder(County, Income), y = Percent, 
+           fill = reorder(Spending_Type, Percent, mean))) +
+  geom_bar(stat = "identity", position = "stack") +
+  coord_flip() +
+  labs(title = "10 Most and Least Wealthy Counties Spending Type Distribution",
+       fill = "Spending Type") +
+  xlab('County') +
+  ylab('Percentage')
+
+```
+
+According to this stacked bar chart, which shows the Expenditure makeup of the top 10 and bottom 10 counties by Income Per Capita, there is little to no commonalty in percentages of spending type and income. Therefore there is likely no relationship between the wealth of a county's population and what the county spends its money on, according to this data.
 
 ### Differences in Budgeted and Actual Expenditures by Type of Spending
 

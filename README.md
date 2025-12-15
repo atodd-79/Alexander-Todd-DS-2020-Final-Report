@@ -1039,7 +1039,10 @@ a County dedicates towards Mental Health. With higher populations, there
 are more people that require mental health services. Interesting here is
 that there is one outlier, Butler County. They likely put more emphasis
 on mental health in this particular county although further research
-would be interesting in determining why.
+would be interesting in determining why. It would also be ideal to look
+into each of the spending types further and compare it to population to
+see trends in all of them. This will help better understand how
+population affects how a county dedicated its Expenditures.
 
 Overall these charts show that what a county spends money on is
 dependent on population. What about income?
@@ -1089,9 +1092,275 @@ to this data.
 For each spending type, what is the difference between budgeted and
 actual expenditures?
 
+``` r
+difference_data <- data |>
+  mutate(
+    Public_Safety_Difference = Actual_Public_Safety_Percent - Budgeted_Public_Safety_Percent,
+    Mental_Health_Difference = Actual_Mental_Health_Percent - Budgeted_Mental_Health_Percent,
+    Roads_Transportation_Difference = Actual_Roads_Transportation_Percent - Budgeted_Roads_Transportation_Percent,
+    Administration_Difference = Actual_Administration_Percent - Budgeted_Administration_Percent,
+    Debt_Difference = Actual_Debt_Percent - Budgeted_Debt_Percent,
+    Physical_Health_Difference = Actual_Physical_Health_Percent - Budgeted_Physical_Health_Percent,
+    Environment_Education_Difference = Actual_Environment_Education_Percent - Budgeted_Environment_Education_Percent,
+    Services_to_Residents_Difference = Actual_Services_to_Residents_Percent - Budgeted_Services_to_Residents_Percent,
+    Refunded_Programs_Difference = Actual_Refunded_Programs_Percent - Budgeted_Refunded_Programs_Percent,
+    Projects_Difference = Actual_Projects_Percent - Budgeted_Projects_Percent,
+    Transfers_Out_Difference = Actual_Transfers_Out_Percent - Budgeted_Transfers_Out_Percent,
+    Refunded_Debt_Difference = Actual_Refunded_Debt_Percent - Budgeted_Refunded_Debt_Percent
+  )
+
+difference_data2 <- difference_data |>
+  pivot_longer(cols = Public_Safety_Difference:Refunded_Debt_Difference,
+               names_to = 'Spending_Type',
+               values_to = 'Percent_Difference'
+              ) |>
+  group_by(Spending_Type) |>
+  summarize(
+    Percent_Difference = mean(Percent_Difference)
+  )
+
+ggplot(difference_data2, aes(x = reorder(Spending_Type, Percent_Difference), y = Percent_Difference)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Percent Difference for Each Spending Type") +
+  xlab('Percent Difference') +
+  ylab('Spending Type')
+```
+
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+This bar chart shows the difference between the actual and budgeted
+spending for each spending type on average for every county for every
+year. Each area that a county can spend in shows a variety in how well
+counties are able to accurately budget. Some spending categories show
+very little difference between budgeted and actual spending. A good
+example of why this is comes from Public Safety and Administrative.
+These spending categories show very little need to change in a given
+year. For Public Safety, once a county budgets a certain amount for the
+year, there is little reason to change it and most of the money would be
+spent in a scheduled amount for a scheduled time. Similarly with
+Administrative expenses, most of the money there comes from salaries
+which are paid out yearly and slight personnel changes are not enough to
+change it within a year. For categories that see a county spend
+significantly more in than budgeted, there are two explanations. The one
+that is assumed is that changes in actual events causes governments to
+have to spend more than they expected. Governments are well known for
+their ability to overspend how much they budget. However, the only
+category type that makes sense with that explanation is Roads and
+Transportation. This is likely due to the fact that it is necessary for
+a government to invest heavily in maintaining roads and unforeseen
+weather changes may cause them to spend more than budgeted. However, the
+second explanation for the other overspending categories is that after a
+county has saved significant amounts of their revenue, they are likely
+to use the excess to pay off debt, which covers Transfers Out (Transfers
+out), Debt (Debt interest), and Repayed Debt (principals on debt).
+
+There are three spending types with a negative difference, meaning less
+is on average spent in that category than budgeted. Projects makes sense
+as project costs vary throughout a typical year and counties are likely
+seeing where they can save money. Mental and Physical Health are
+difficult to explain, but likely counties allocate significant money
+there for insurance and medical reimbursements for employees but do not
+often require that money to be spent.
+
+Overall, this shows that counties do not overspend as much as one might
+assume as they have enough excess budget towards the end of the year
+that they are able to use to pay off debt.
+
 ### Most Fiscally Responsible Counties
 
 What counties are the best at following their budget? How has this
 changed over time?
 
+``` r
+complete_difference <- data |>
+  mutate(
+    Spending_to_Budget_Difference = (Total_Expenditure - Total_Budget) / Total_Budget,
+    Spending_to_Revenue_Difference = (Total_Expenditure - Total_Revenue) / Total_Revenue
+  )
+
+county_difference_data <- complete_difference |>
+  group_by(County) |>
+  summarize(
+    Spending_to_Budget_Difference = mean(Spending_to_Budget_Difference),
+    Spending_to_Revenue_Difference = mean(Spending_to_Revenue_Difference)
+  ) |>
+  left_join(iowa, by = 'County')
+
+ggplot(county_difference_data, aes(x = long, y = lat, fill = Spending_to_Budget_Difference)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient2(low = '#22ff00', high = '#ff0000', mid = '#FFED00', midpoint = 0) +
+  theme_void() +
+  labs(title = "Expenditure to Budget Percent Difference by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+This map shows the difference in Expenditure and Budget for each county
+as a percentage of Budget. While the colors show high differences, the
+legend shows that most counties follow their budget very closely and do
+not spend more than 10% different in either direction.
+
+``` r
+county_difference_data2 <- complete_difference |>
+  group_by(County) |>
+  summarize(
+    Spending_to_Budget_Difference = mean(abs(Spending_to_Budget_Difference)),
+    Spending_to_Revenue_Difference = mean(abs(Spending_to_Revenue_Difference))
+  ) |>
+  left_join(iowa, by = 'County')
+
+ggplot(county_difference_data2, aes(x = long, y = lat, fill = Spending_to_Budget_Difference)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient(low = '#4D4100', high = '#FFED00') +
+  theme_void() +
+  labs(title = "Absolute Expenditure to Budget Percent Difference by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+
+Using absolute values removes the cancelling out due to under and over
+spending. However, since underspending is not necessarily a gauge of
+whether a county is fiscally responsible it should not be taken into
+account.
+
+``` r
+ggplot(county_difference_data, aes(x = long, y = lat,
+                                   fill = Spending_to_Revenue_Difference)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient2(low = '#22ff00', high = '#ff0000', mid = '#FFED00', midpoint = 0) +
+  theme_void() +
+  labs(title = "Expenditure to Revenue Percent Difference by County") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+This, that uses the difference in how much a county spends and their
+revenue as a percentage of their revenue, shows that most counties do a
+good job keeping to their budget. However, Monroe county in the south
+and the three counties in a cluster of Winnebago, Worth, and Mitchell
+all have higher average differences meaning that they generally
+overspend and so are less fiscally responsible.
+
+``` r
+county_difference_data |>
+  group_by(County) |>
+  summarize(Spending_to_Revenue_Difference = mean(Spending_to_Revenue_Difference)) |>
+  arrange(Spending_to_Revenue_Difference) |>
+  head(5)
+```
+
+    ## # A tibble: 5 × 2
+    ##   County    Spending_to_Revenue_Difference
+    ##   <chr>                              <dbl>
+    ## 1 RINGGOLD                         -0.0965
+    ## 2 DELAWARE                         -0.0636
+    ## 3 CALHOUN                          -0.0614
+    ## 4 MUSCATINE                        -0.0611
+    ## 5 DECATUR                          -0.0608
+
+This shows that the most fiscally responsible counties are Ringgold,
+Delaware, Calhoun, Muscatine, and Decatur.
+
+Now how has that changed over time?
+
+``` r
+top_5 <- complete_difference |>
+  filter(County %in% c("RINGGOLD", "DELAWARE", "CALHOUN", "MUSCATINE", "DECATUR"))
+
+complete_difference |>
+  ggplot(aes(x = factor(Year), y = Spending_to_Revenue_Difference, group = County)) +
+  geom_line() +
+  geom_line(data = top_5,
+            mapping = aes(x = factor(Year),
+                          y = Spending_to_Revenue_Difference, group = County),
+            color = 'yellow') +
+  labs(title = "Fiscal Responsibility by Year") +
+  xlab("Year") +
+  ylab("Spending to Revenue Difference Percent")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+
+This line graph shows how the top 5 all-time fiscally responsible
+counties compare on a year to year (seen in yellow). As expected, there
+is variety year to year as the requirements of every year vary for each
+individual county in different ways. What is surprising is that they do
+not categorically rank low, instead generally saving money in most year
+while other counties vary more widely. Except for Ringgold county, none
+appear to have many years where they consistently underspend
+significantly more than every other county.
+
+``` r
+complete_difference <- complete_difference |>
+  left_join(iowa, by = 'County')
+```
+
+    ## Warning in left_join(complete_difference, iowa, by = "County"): Detected an unexpected many-to-many relationship between `x` and `y`.
+    ## ℹ Row 1 of `x` matches multiple rows in `y`.
+    ## ℹ Row 139 of `y` matches multiple rows in `x`.
+    ## ℹ If a many-to-many relationship is expected, set `relationship =
+    ##   "many-to-many"` to silence this warning.
+
+``` r
+ggplot(complete_difference, aes(x = long, y = lat,
+                                   fill = Spending_to_Revenue_Difference)) + 
+  geom_polygon(aes(group = group)) +
+  scale_fill_gradient2(low = '#22ff00', high = '#ff0000', mid = '#FFED00', midpoint = 0) +
+  theme_void() +
+  labs(title = "Expenditure to Revenue Percent Difference Each Year") +
+  theme(
+    plot.title = element_text(
+      size = 20, 
+      face = "bold",
+      hjust = 0.5)
+    ) +
+  facet_wrap(~Year)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+
+Showing each year individually shows that there is too much variety year
+to year in whether counties underspend or overspend their revenue to
+gauge which are generally best. However, it shows that most counties are
+inclined to have years where they severely overspend, such as Monroe
+County in 2019, than years where they are more fiscally responsible.
+However, most years shows that the counties generally spend as much as
+they make.
+
 ## Conclusion
+
+There are many things discovered through the use of this data.
+Population is a major factor in determining how counties Collect and
+Spend their wealth. Counties with more population, as expected, collect
+larger revenues but counties with smaller populations tend to have more
+revenue per person as they have a higher percentage of their revenue
+coming in from grants. Similarly, in spending money, due to counties in
+Iowa being roughly the same size, they must spend similar amounts of
+money in certain items like Roads meaning that counties with small
+populations must spend more money per person than counties with larger
+populations.
+
+The counties generally follow their budgets and rarely spend more or
+less than they earn in a given year with small exceptions. They are also
+more likely to overspend than underspend. It is hard to determine which
+counties are the most fiscally responsible as it varies considerable
+from year to year.

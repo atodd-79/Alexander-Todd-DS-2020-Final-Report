@@ -505,8 +505,8 @@ ggplot(funding_data, aes(x = `Percent from Grants`, y = Revenue_by_Pop)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, col = "#FFED00") +
   geom_point(data = Ringgold, color = "red") +
-  geom_text(data = Ringgold, aes(label = "Ringgold County"), size = 2.5, vjust = -0.5) +
-  labs(title = "Percent of Revenue from Activities by Population")
+  geom_text(data = Ringgold, aes(label = "Ringgold County"), size = 2.5, vjust = -0.5, hjust = 0.75) +
+  labs(title = "Revenue to Population by Percent of Revenue from Grants")
 
 ```
 
